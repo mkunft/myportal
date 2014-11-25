@@ -3,117 +3,125 @@
         <title>Kunft Portal</title>
         <link rel="stylesheet" href="/css/myportal.css"/> 
         <script type="text/javascript" src="/javascripts/jquery-2.1.1.js"></script>
+        <script type="text/javascript" src="/javascripts/jquery.cycle.all.js"></script>
+        <script type="text/javascript" src="/javascripts/myContent.js"></script>
         <script>
-            var Position = ['Demos', 'Projects', 'Skills', 'Home', 0, 0, 0];
+            var currentPos = 0;
 
-            function spinIcons(pos) {
-                var $d1 = $('#pos1');
-                var $d2 = $('#pos2');
-                var $d3 = $('#pos3');
-                var $d4 = $('#pos4');
-                var $d5 = $('#pos5');
-                var $d6 = $('#pos6');
+            function spinIcons(ato) {
+                var $d1 = $('#pic1');
+                var $d2 = $('#pic2');
+                var $d3 = $('#pic3');
                 var $da = $('#active');
                 var $pn = $('#panel');
                 var $elem1 = $('#orb');
                 var $elem2 = $('#ring');
-                var pIndex = 0;
-                var pMove = 0; 
-                var pDir;
-                var pStep = 0;
-                if (pos < 4) {
-                    pMove = 4 - pos;
-                    pDir = 1; //Forward
-                    //console.log('Move '+mv+' spaces');
-                    //for (var i = 0; i < mv; i++) {
-                    //    var item = Position.pop();
-                    //    Position.unshift(item);
-                    //}
+                var cntn;
+                var iref = [];
+                if (ato === 0) {
+                    cntn = myContent.Home.Content;
+                    iref = myContent.Home.Images;
+                }
+                else if (ato === 45) {
+                    cntn = myContent.Skills.Content;
+                    iref = myContent.Skills.Images;
+                }
+                else if (ato === 90) {
+                    cntn = myContent.Work.Content;
+                    iref = myContent.Work.Images;
+                }
+                else if (ato === 135) {
+                    cntn = myContent.Demos.Content;
+                    iref = myContent.Demos.Images;
                 }
                 else {
-                    pMove = pos - 3;
-                    pDir = 0; //Backwards
+                    ato = 0;
+                    cntn = myContent.Home.Content;
+                    iref = myContent.Home.Images;
                 }
-                $({deg: 0}).animate({deg: 360}, {
-                    duration: 800,
-                    step: function(now) {
-                        $elem1.css({
-                            transform: 'rotate(' + now + 'deg)'
-                        });
+
+                var imgHtml;
+                $d1.cycle('stop');
+                $d1.fadeOut(200);
+                $d2.cycle('stop');
+                $d2.fadeOut(200);
+                $d3.cycle('stop');
+                $d3.fadeOut(200);
+                $d1.html();
+                $.each(iref, function(idx, val) {
+                    imgHtml += '<img class="picimg" src="'+val+'" />"';
+                });
+                $d1.html(imgHtml);
+                imgHtml = ''; 
+                var li = iref.shift();
+                iref.push(li);
+                $.each(iref, function(idx, val) {
+                    imgHtml += '<img class="picimg" src="'+val+'" />"';
+                });
+                $d2.html(imgHtml);
+                imgHtml = ''; 
+                li = iref.shift();
+                iref.push(li);
+                $.each(iref, function(idx, val) {
+                    imgHtml += '<img class="picimg" src="'+val+'" />"';
+                });
+                $d3.html(imgHtml);
+
+                $({deg: currentPos}).animate({deg: ato}, {
+                    duration: 1000,
+                    step: function(ta) {
                         $elem2.css({
-                            transform: 'rotate(-' + now + 'deg)'
-                        });
-                        if (pStep === 0) {
-                            if (pIndex < pMove) {
-                                if (pDir === 1) {
-                                    var item = Position.pop();
-                                    Position.unshift(item);
-                                } 
-                                else {
-                                    var item = Position.shift();
-                                    Position.push(item);
-                                }
-                                var html = Position[0] === 0 ? '' : '<a href="#" onClick="spinIcons(1)">'+Position[0]+'</a>';
-                                $d1.html(html);
-                                html = Position[1] === 0 ? '' : '<a href="#" onClick="spinIcons(2)">'+Position[1]+'</a>';
-                                $d2.html(html).fadeIn(200);
-                                html = Position[2] === 0 ? '' : '<a href="#" onClick="spinIcons(3)">'+Position[2]+'</a>';
-                                $d3.html(html);
-                                html = Position[4] === 0 ? '' : '<a href="#" onClick="spinIcons(4)">'+Position[4]+'</a>';
-                                $d4.html(html);
-                                html = Position[5] === 0 ? '' : '<a href="#" onClick="spinIcons(5)">'+Position[5]+'</a>';
-                                $d5.html(html);
-                                html = Position[6] === 0 ? '' : '<a href="#" onClick="spinIcons(6)">'+Position[6]+'</a>';
-                                $d6.html(html);
-                                html = Position[3] === 0 ? '' : Position[3];
-                                $da.html(html);
-                                pIndex++;
-                            }
-                            pStep++;
-                        }
-                        else {
-                            if (pStep === 15) {
-                                pStep = 0;
-                            }
-                            else {
-                                pStep++;
-                            }
-                        }
+                            transform: 'rotate(' + ta + 'deg)'
+                        })
                     },
                     start: function() {
-                        $pn.slideUp(200);
+                        $pn.html('');
+                        $pn.animate({width: "0px", height: "0px"}, 500);
                     },
                     done: function() {
-                        $pn.slideDown(200);
-                        pStep = 0;
-                        pIndex = 0;
+                        $pn.animate({width: "500px", height: "400px"},{
+                            duration: 500,
+                            done: function() {
+                                $pn.html(cntn);
+                                $d1.fadeIn(400);
+                                $d1.cycle('scrollDown');
+                                $d2.fadeIn(400);
+                                $d2.cycle('scrollDown');
+                                $d3.fadeIn(400);
+                                $d3.cycle('scrollDown');
+                            }
+                        });
                     }
                 });
+                $({deg: 0}).animate({deg: 360}, {
+                    duration: 1500,
+                    step: function(ta) {
+                        $elem1.css({
+                            transform: 'rotate(-' + ta + 'deg)'
+                        })
+                    }
+                });
+                currentPos = ato;
             }
             $(document).ready(function() {
+                spinIcons(0);
+                $('#pic1').cycle('scrollDown');
+                $('#pic2').cycle('scrollDown');
+                $('#pic3').cycle('scrollDown');
             });
         </script>
     </head>
     <body>
         <img id="orb" class="orb" src="/images/orb.png"></img>
-        <img id="ring" class="ring" src="/images/ring.png"></img>
-        <div id="pos1" class="pos1"><a href="#" onClick="spinIcons(1)">Demos</a></div>
-        <div id="pos2" class="pos2"><a href="#" onClick="spinIcons(2)">Projects</a></div>
-        <div id="pos3" class="pos3"><a href="#" onClick="spinIcons(3)">Skills</a></div>
-        <div id="active" class="active">Home</div>
-        <div id="pos4" class="pos4"></div>
-        <div id="pos5" class="pos5"></div>
-        <div id="pos6" class="pos6"></div>
-        <div id="panel" class="panel">
-            <h4>About Martin Kunft</h4>
-            <p>
-            Thank you for visiting my home protal, this is where I like to show what I can do!
-            </p>
-            <p>
-            Yadda yadda boom bang bing, bign bom badda dader udder foo boo, moo-choo pork is yummy,
-            but so is bi bop a lu la.
-            </p>
-            <i> Thank you </i>
-        </div>  
+        <div id="ring" class="ring">
+            <div id="pos1" class="pos1"><a href="#" onClick="spinIcons(135)">Demos</a></div>
+            <div id="pos2" class="pos2"><a href="#" onClick="spinIcons(90)">Work</a></div>
+            <div id="pos3" class="pos3"><a href="#" onClick="spinIcons(45)">Skills</a></div>
+            <div id="active" class="active"><a href="#" onClick="spinIcons(0)">Home</a></div>
+        </div>
+        <div id="panel" class="panel"></div>  
+        <div id="pic1" class="pic1"></div>
+        <div id="pic2" class="pic2"></div>
+        <div id="pic3" class="pic3"></div>
     </body>
 </html>
